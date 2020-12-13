@@ -9,6 +9,8 @@
  */
 namespace SebastianBergmann\CodeCoverage;
 
-class RuntimeException extends \RuntimeException implements Exception
+use RuntimeException;
+
+final class XmlException extends RuntimeException implements Exception
 {
 }

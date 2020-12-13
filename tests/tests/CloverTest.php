@@ -12,17 +12,27 @@ namespace SebastianBergmann\CodeCoverage\Report;
 use SebastianBergmann\CodeCoverage\TestCase;
 
 /**
- * @covers SebastianBergmann\CodeCoverage\Report\Clover
+ * @covers \SebastianBergmann\CodeCoverage\Report\Clover
  */
-class CloverTest extends TestCase
+final class CloverTest extends TestCase
 {
-    public function testCloverForBankAccountTest(): void
+    public function testLineCoverageForBankAccountTest(): void
     {
         $clover = new Clover;
 
         $this->assertStringMatchesFormatFile(
-            TEST_FILES_PATH . 'BankAccount-clover.xml',
-            $clover->process($this->getCoverageForBankAccount(), null, 'BankAccount')
+            TEST_FILES_PATH . 'BankAccount-clover-line.xml',
+            $clover->process($this->getLineCoverageForBankAccount(), null, 'BankAccount')
+        );
+    }
+
+    public function testPathCoverageForBankAccountTest(): void
+    {
+        $clover = new Clover;
+
+        $this->assertStringMatchesFormatFile(
+            TEST_FILES_PATH . 'BankAccount-clover-path.xml',
+            $clover->process($this->getPathCoverageForBankAccount(), null, 'BankAccount')
         );
     }
 

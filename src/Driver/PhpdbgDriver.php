@@ -9,52 +9,47 @@
  */
 namespace SebastianBergmann\CodeCoverage\Driver;
 
-use SebastianBergmann\CodeCoverage\RuntimeException;
+use const PHP_SAPI;
+use const PHP_VERSION;
+use function array_diff;
+use function array_keys;
+use function array_merge;
+use function get_included_files;
+use function phpdbg_end_oplog;
+use function phpdbg_get_executable;
+use function phpdbg_start_oplog;
+use SebastianBergmann\CodeCoverage\RawCodeCoverageData;
 
 /**
- * Driver for PHPDBG's code coverage functionality.
+ * @internal This class is not covered by the backward compatibility promise for phpunit/php-code-coverage
  */
-final class PHPDBG implements Driver
+final class PhpdbgDriver extends Driver
 {
     /**
-     * @throws RuntimeException
+     * @throws PhpdbgNotAvailableException
      */
     public function __construct()
     {
-        if (\PHP_SAPI !== 'phpdbg') {
-            throw new RuntimeException(
-                'This driver requires the PHPDBG SAPI'
-            );
-        }
-
-        if (!\function_exists('phpdbg_start_oplog')) {
-            throw new RuntimeException(
-                'This build of PHPDBG does not support code coverage'
-            );
+        if (PHP_SAPI !== 'phpdbg') {
+            throw new PhpdbgNotAvailableException;
         }
     }
 
-    /**
-     * Start collection of code coverage information.
-     */
-    public function start(bool $determineUnusedAndDead = true): void
+    public function start(): void
     {
-        \phpdbg_start_oplog();
+        phpdbg_start_oplog();
     }
 
-    /**
-     * Stop collection of code coverage information.
-     */
-    public function stop(): array
+    public function stop(): RawCodeCoverageData
     {
         static $fetchedLines = [];
 
-        $dbgData = \phpdbg_end_oplog();
+        $dbgData = phpdbg_end_oplog();
 
-        if ($fetchedLines == []) {
-            $sourceLines = \phpdbg_get_executable();
+        if ($fetchedLines === []) {
+            $sourceLines = phpdbg_get_executable();
         } else {
-            $newFiles = \array_diff(\get_included_files(), \array_keys($fetchedLines));
+            $newFiles = array_diff(get_included_files(), array_keys($fetchedLines));
 
             $sourceLines = [];
 
@@ -69,14 +64,18 @@ final class PHPDBG implements Driver
             }
         }
 
-        $fetchedLines = \array_merge($fetchedLines, $sourceLines);
+        $fetchedLines = array_merge($fetchedLines, $sourceLines);
 
-        return $this->detectExecutedLines($fetchedLines, $dbgData);
+        return RawCodeCoverageData::fromXdebugWithoutPathCoverage(
+            $this->detectExecutedLines($fetchedLines, $dbgData)
+        );
     }
 
-    /**
-     * Convert phpdbg based data into the format CodeCoverage expects
-     */
+    public function nameAndVersion(): string
+    {
+        return 'PHPDBG ' . PHP_VERSION;
+    }
+
     private function detectExecutedLines(array $sourceLines, array $dbgData): array
     {
         foreach ($dbgData as $file => $coveredLines) {

@@ -9,9 +9,12 @@
  */
 namespace SebastianBergmann\CodeCoverage;
 
-/**
- * Exception that is raised when covered code is not executed.
- */
-final class CoveredCodeNotExecutedException extends RuntimeException
+use RuntimeException;
+
+final class NoCodeCoverageDriverWithPathCoverageSupportAvailableException extends RuntimeException implements Exception
 {
+    public function __construct()
+    {
+        parent::__construct('No code coverage driver with path coverage support available');
+    }
 }

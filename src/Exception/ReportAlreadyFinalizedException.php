@@ -9,9 +9,12 @@
  */
 namespace SebastianBergmann\CodeCoverage;
 
-/**
- * Exception that is raised when @covers must be used but is not.
- */
-final class MissingCoversAnnotationException extends RuntimeException
+use RuntimeException;
+
+final class ReportAlreadyFinalizedException extends RuntimeException implements Exception
 {
+    public function __construct()
+    {
+        parent::__construct('The code coverage report has already been finalized');
+    }
 }

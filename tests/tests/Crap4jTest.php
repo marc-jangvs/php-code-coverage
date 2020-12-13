@@ -12,9 +12,9 @@ namespace SebastianBergmann\CodeCoverage\Report;
 use SebastianBergmann\CodeCoverage\TestCase;
 
 /**
- * @covers SebastianBergmann\CodeCoverage\Report\Crap4j
+ * @covers \SebastianBergmann\CodeCoverage\Report\Crap4j
  */
-class Crap4jTest extends TestCase
+final class Crap4jTest extends TestCase
 {
     public function testForBankAccountTest(): void
     {
@@ -22,7 +22,7 @@ class Crap4jTest extends TestCase
 
         $this->assertStringMatchesFormatFile(
             TEST_FILES_PATH . 'BankAccount-crap4j.xml',
-            $crap4j->process($this->getCoverageForBankAccount(), null, 'BankAccount')
+            $crap4j->process($this->getLineCoverageForBankAccount(), null, 'BankAccount')
         );
     }
 
